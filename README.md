@@ -1,0 +1,2 @@
+# Demonhunter2
+JOGO DE DEMON SLAYER CARD
