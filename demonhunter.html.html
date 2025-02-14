@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEMON HUNTER</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(black, darkred);
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: crimson;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.1);
+        }
+        #demon {
+            font-size: 24px;
+            color: white;
+            margin: 20px 0;
+        }
+        #demon-card {
+            display: none;
+            width: 300px;
+        }
+        .gallery {
+            display: none;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .character {
+            width: 150px;
+            text-align: center;
+            color: white;
+        }
+        .character img {
+            width: 100px;
+            height: 100px;
+            filter: grayscale(100%);
+        }
+        .unlocked img {
+            filter: none;
+        }
+        #rank-max {
+            display: none;
+            font-size: 24px;
+            color: gold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <button id="start-btn">Jogar</button>
+        <button id="gallery-btn">Galeria</button>
+        <div id="battle" style="display: none;">
+            <p id="demon">Mate o demônio 5 vezes!</p>
+            <button id="attack-btn">Matar Demônio</button>
+        </div>
+        <button id="claim-btn" style="display: none;">Reivindicar Carta</button>
+        <img id="demon-card" src="" alt="Demon Card" style="display: none;">
+        <button id="restart-btn" style="display: none;">Voltar ao Início</button>
+        <div id="rank-max">Você atingiu o Rank Máximo! 10000</div>
+        <div class="gallery" id="gallery">
+            <div class="character" id="kyojuro"><img src="https://www.pngall.com/wp-content/uploads/14/Rengoku-PNG-Images.png" alt="Kyojuro Rengoku"><p>Kyojuro Rengoku - O Pilar das Chamas</p></div>
+            <div class="character" id="tanjiro"><img src="https://pt.quizur.com/_image?href=https://img.quizur.com/f/img62d736fde7d8f0.73540037.jpg?lastEdited=1658271832&w=1024&h=1024&f=webp" alt="Tanjiro Kamado"><p>Tanjiro Kamado - O Caçador de Demônios</p></div>
+            <div class="character" id="nezuko"><img src="https://static.wikia.nocookie.net/liberproeliis/images/2/2f/Nezuko_anime_design.png/revision/latest?cb=20200416224847&path-prefix=pt-br" alt="Nezuko Kamado"><p>Nezuko Kamado - A Demônio Gentil</p></div>
+            <div class="character" id="akaza"><img src="https://asia.sega.com/kimetsu_hinokami/en/assets/img/sub/character/charaupdate2_thumb.png" alt="Akaza"><p>Akaza - O Poderoso Lua Superior</p></div>
+        </div>
+    </div>
+    <script>
+        let attackCount = 0;
+        let unlockedCharacters = JSON.parse(localStorage.getItem("unlockedCharacters")) || [];
+        
+        function updateGallery() {
+            document.querySelectorAll(".character").forEach(char => {
+                if (unlockedCharacters.includes(char.id)) {
+                    char.classList.add("unlocked");
+                }
+            });
+            if (unlockedCharacters.length === 4) {
+                document.getElementById("rank-max").style.display = "block";
+            }
+        }
+        
+        document.getElementById("start-btn").addEventListener("click", () => {
+            document.getElementById("start-btn").style.display = "none";
+            document.getElementById("battle").style.display = "block";
+        });
+        
+        document.getElementById("attack-btn").addEventListener("click", () => {
+            attackCount++;
+            document.getElementById("demon").innerText = `Mate o demônio ${5 - attackCount} vezes!`;
+            if (attackCount >= 5) {
+                document.getElementById("battle").style.display = "none";
+                document.getElementById("claim-btn").style.display = "block";
+            }
+        });
+        
+        document.getElementById("claim-btn").addEventListener("click", () => {
+            document.getElementById("claim-btn").style.display = "none";
+            let characters = ["kyojuro", "tanjiro", "nezuko", "akaza"];
+            let chances = [0.4, 0.3, 0.2, 0.1];
+            let random = Math.random();
+            let sum = 0;
+            let earnedCharacter;
+            
+            for (let i = 0; i < characters.length; i++) {
+                sum += chances[i];
+                if (random < sum) {
+                    earnedCharacter = characters[i];
+                    break;
+                }
+            }
+            
+            unlockedCharacters.push(earnedCharacter);
+            localStorage.setItem("unlockedCharacters", JSON.stringify([...new Set(unlockedCharacters)]));
+            document.getElementById("demon-card").src = document.getElementById(earnedCharacter).querySelector("img").src;
+            document.getElementById("demon-card").style.display = "block";
+            document.getElementById("restart-btn").style.display = "block";
+            updateGallery();
+        });
+        
+        document.getElementById("restart-btn").addEventListener("click", () => {
+            location.reload();
+        });
+        
+        document.getElementById("gallery-btn").addEventListener("click", () => {
+            document.getElementById("gallery").style.display = "flex";
+            updateGallery();
+        });
+    </script>
+</body>
+</html>
